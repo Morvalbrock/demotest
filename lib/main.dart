@@ -1,103 +1,83 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:intl/intl.dart';
-import 'package:month_year_picker/month_year_picker.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-void main() {
-  runApp(const ExampleApp());
+import 'providers/auth_provider.dart';
+import 'providers/hotel_provider.dart';
+import 'providers/booking_provider.dart';
+import 'screens/splash_screen.dart';
+import 'utils/constants.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Hive
+  await Hive.initFlutter();
+  await Hive.openBox('user_data');
+  await Hive.openBox('bookings');
+  
+  runApp(const HotelBookingApp());
 }
 
-class ExampleApp extends StatelessWidget {
-  // ------------------------------- CONSTRUCTORS ------------------------------
-  const ExampleApp({
-    Key? key,
-  }) : super(key: key);
+class HotelBookingApp extends StatelessWidget {
+  const HotelBookingApp({super.key});
 
-  // --------------------------------- METHODS ---------------------------------
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Month Year Picker Example',
-      home: MyHomePage(),
-      localizationsDelegates: [
-        GlobalWidgetsLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        MonthYearPickerLocalizations.delegate,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => HotelProvider()),
+        ChangeNotifierProvider(create: (_) => BookingProvider()),
       ],
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  // ------------------------------- CONSTRUCTORS ------------------------------
-  const MyHomePage({
-    Key? key,
-  }) : super(key: key);
-
-  // --------------------------------- METHODS ---------------------------------
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  // ---------------------------------- FIELDS ---------------------------------
-  DateTime? _selected;
-
-  // --------------------------------- METHODS ---------------------------------
-  @override
-  Widget build(BuildContext context) {
-    _selected ?? DateTime.now();
-    return Scaffold(
-      appBar: AppBar(title: const Text('Month Year Picker Example')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (_selected == null)
-              Text(DateFormat().add_yM().format(DateTime.now()))
-            else
-              Text(DateFormat().add_yM().format(_selected!)),
-            TextButton(
-              child: const Text('DEFAULT LOCALE'),
-              onPressed: () => _onPressed(context: context),
+      child: MaterialApp(
+        title: 'Hotel Booking App',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          primaryColor: AppColors.primary,
+          scaffoldBackgroundColor: AppColors.background,
+          textTheme: GoogleFonts.poppinsTextTheme(),
+          appBarTheme: AppBarTheme(
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            titleTextStyle: GoogleFonts.poppins(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
             ),
-            // TextButton(
-            //   child: const Text('BAHASA MALAYSIA'),
-            //   onPressed: () => _onPressed(context: context, locale: 'ms'),
-            // ),
-            // TextButton(
-            //   child: const Text('اللغة العربية'),
-            //   onPressed: () => _onPressed(context: context, locale: 'ar'),
-            // ),
-          ],
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+          inputDecorationTheme: InputDecorationTheme(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: AppColors.border),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: AppColors.border),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: AppColors.primary, width: 2),
+            ),
+            filled: true,
+            fillColor: Colors.white,
+          ),
         ),
+        home: const SplashScreen(),
       ),
     );
-  }
-
-  Future<void> _onPressed({
-    required BuildContext context,
-    String? locale,
-  }) async {
-    final localeObj = locale != null ? Locale(locale) : null;
-    final selected = await showMonthYearPicker(
-      context: context,
-      initialDate: _selected ?? DateTime.now(),
-      firstDate: DateTime(2019),
-      lastDate: DateTime(2030),
-      locale: localeObj,
-    );
-    // final selected = await showDatePicker(
-    //   context: context,
-    //   initialDate: _selected ?? DateTime.now(),
-    //   firstDate: DateTime(2019),
-    //   lastDate: DateTime(2022),
-    //   locale: localeObj,
-    // );
-    if (selected != null) {
-      setState(() {
-        _selected = selected;
-      });
-    }
   }
 }
