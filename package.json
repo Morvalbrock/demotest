@@ -1,0 +1,29 @@
+{
+  "name": "stayeasy-hotel-booking",
+  "version": "1.0.0",
+  "description": "Modern hotel booking website with UPI payment integration",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "serve": "python3 -m http.server 8000"
+  },
+  "keywords": [
+    "hotel",
+    "booking",
+    "upi",
+    "payment",
+    "responsive",
+    "javascript",
+    "css",
+    "html"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/stayeasy-hotel-booking.git"
+  },
+  "homepage": "https://yourusername.github.io/stayeasy-hotel-booking",
+  "devDependencies": {},
+  "dependencies": {}
+}
